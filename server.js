@@ -75,10 +75,10 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true })
 
             ordersCollection.find({_id: req.params.id})
             .toArray().then(result => {
-                    // console.log(result[0].drivers);
-                    res.status(200).send({success: 'ok', drivers:result[0].drivers});
+                    console.log(result[0].drivers);
+                    res.status(200).send(JSON.stringify({success: 'ok', drivers:result[0].drivers}));
                 })
-                .catch(error =>res.status(400).send({error: 'ok'}))
+                .catch(error =>res.status(400).send({error: error}))
         });
 
         app.listen(3000, function () {
