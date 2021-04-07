@@ -14,9 +14,9 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true })
         const db = client.db('easygas')
         const ordersCollection = db.collection('orders');
 
-        // app.get('/',(req,res) => {
-        //     res.sendFile(__dirname + '/index.html')
-        // });
+        app.get('/',(req,res) => {
+            res.sendFile(__dirname + '/index.html')
+        });
 
         app.post('/place-order', (req, res) => {
             ordersCollection.insertOne({_id: req.body.order.order_no, drivers: req.body.drivers,status: req.body.status})
@@ -57,6 +57,26 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true })
                     }else {
                         res.status(200).send({success: 'ok', code:2});
                     }
+                })
+                .catch(error =>res.status(400).send({error: 'ok'}))
+        });
+
+        app.get('/get-order-drivers/:id', (req, res) => {
+            // ordersCollection.aggregate(
+            //     {$match: {_id: req.params.id}},
+            //     {$unwind: "$drivers"},
+            //     {$match: {"drivers.progress": 'pending'}},
+            //     {$project: { "drivers.$": 1, status:0 } }
+            //   ).toArray().then(result => {
+            //     console.log(result);
+            //     res.status(200).send({success: 'ok', drivers:result});
+            // })
+            // .catch(error =>res.status(400).send({error: 'ok'}))
+
+            ordersCollection.find({_id: req.params.id})
+            .toArray().then(result => {
+                    // console.log(result[0].drivers);
+                    res.status(200).send({success: 'ok', drivers:result[0].drivers});
                 })
                 .catch(error =>res.status(400).send({error: 'ok'}))
         });
