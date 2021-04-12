@@ -21,6 +21,7 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true })
         app.post('/place-order', (req, res) => {
             ordersCollection.insertOne({_id: req.body.order.order_no, drivers: req.body.drivers,status: req.body.status})
             .then(result => {
+                console.log('place order');
                 res.status(200).send({success: 'ok', code:1});
             })
             .catch(error =>res.status(400).send({error: 'ok'}))
@@ -73,12 +74,17 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true })
             // })
             // .catch(error =>res.status(400).send({error: 'ok'}))
 
-            ordersCollection.find({_id: req.params.id})
-            .toArray().then(result => {
-                    console.log(result[0].drivers);
-                    res.status(200).send(JSON.stringify({success: 'ok', drivers:result[0].drivers}));
-                })
-                .catch(error =>res.status(400).send({error: error}))
+            ordersCollection.findOneAndUpdate({_id: req.params.id,status:"pending"},
+                {"$set": {status:"cancelled"}},
+                )
+                .then(result1 => {
+                    ordersCollection.find({_id: req.params.id})
+                    .toArray().then(result => {
+                        console.log('request time out')
+                        res.status(200).send(JSON.stringify({success: 'ok', drivers:result[0].drivers}));
+                    })
+                    .catch(error =>res.status(400).send({error: error}))
+                }).catch(error =>res.status(400).send({error: error}))
         });
 
         app.listen(3000, function () {
