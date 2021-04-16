@@ -80,8 +80,15 @@ MongoClient.connect('mongodb://localhost:27017', { useUnifiedTopology: true })
                 .then(result1 => {
                     ordersCollection.find({_id: req.params.id})
                     .toArray().then(result => {
-                        console.log('request time out')
-                        res.status(200).send(JSON.stringify({success: 'ok', drivers:result[0].drivers}));
+                        // console.log(result[0].drivers);
+                        let data = result[0].drivers;
+                        let drivers = [];
+                        Object.keys(data).map(function(key, index) {
+                            if(data[index].progress == "pending"){
+                                drivers.push(data[index]);
+                            }
+                          });
+                        res.status(200).send(JSON.stringify({success: 'ok', drivers:drivers}));
                     })
                     .catch(error =>res.status(400).send({error: error}))
                 }).catch(error =>res.status(400).send({error: error}))
